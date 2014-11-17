@@ -1,3 +1,6 @@
+# Executables
+cxxsay
+
 # Compiled Object files
 *.slo
 *.lo
