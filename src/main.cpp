@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <exception>
 #include <stdexcept>
@@ -110,24 +111,46 @@ void display_cow_list(std::string e_cowpath) {
 
 void display_cow() {
     std::cout << " ";
-    for(int i = 0; i < message.size() + 2; i++)
-        std::cout << "-";
 
     if (message.size() < wrap) {
-        std::cout << std::endl << "< " << message << " >" << std::endl; 
+        for(int i = 0; i < message.size() + 2; i++)
+            std::cout << "-";
+        std::cout << std::endl << "< " << message << " >" << std::endl << " ";
+        for(int i = 0; i < message.size() + 2; i++)
+            std::cout << "-";
     } else {
-        //auto substr_vec = break_down_message();
-        //std::cout << std::endl << "/" << std::endl;
-        //std::cout << "|" << std::endl;
-        //std::cout << "\\" << std::endl;
-        for(auto s : break_down_message()) {
-            std::cout << s << std::endl;
+        unsigned int max_len = 0;
+        auto v = break_down_message();
+        for(auto l : v)
+            if (l.size() > max_len)
+                max_len = l.size();
+        
+        if (v.size() == 2) {
+            for(int i = 0; i < max_len + 2; i++)
+                std::cout << "-";
+            std::cout << std::endl << "/ " << v[0] << std::endl;
+            std::cout << "\\ " << v[1] << std::endl;
+            std::cout << " ";
+            for(int i = 0; i < max_len + 2; i++)
+                std::cout << "-";
+        } else {
+            for(int i = 0; i < max_len + 2; i++)
+                std::cout << "-";
+            std::cout << std::endl;
+            for(int index = 0; index < v.size(); index++) {
+                if (index == 0)
+                    std::cout << "/ ";
+                else if (index == v.size()-1)
+                    std::cout << "\\ ";
+                else
+                    std::cout << "| ";
+                std::cout << v[index] << std::endl;
+            }
+            std::cout << " ";
+            for(int i = 0; i < max_len + 2; i++)
+                std::cout << "-";
         }
     }
-
-    std::cout << " ";
-    for(int i = 0; i < message.size() + 2; i++)
-        std::cout << "-";
     std::cout << std::endl;
 }
 
@@ -152,7 +175,6 @@ void get_interactive_message() {
 
     results = multi_replace(results, replace_list);
     
-    //message = results;
     message = trim(results);
 }
 
@@ -167,13 +189,17 @@ std::vector<std::string> break_down_message() {
     while (index < message.size()) {
         index += wrap;
         if (index > message.size()) {
-            ret.push_back(str.substr(prev_index));
+            std::string tmp = str.substr(prev_index);
+            tmp = trim(tmp);
+            ret.push_back(tmp);
             break;
         }
         while(message[index]!=' ') {
             index--;    
         }
-        ret.push_back(str.substr(prev_index, index - prev_index));
+        std::string tmp = str.substr(prev_index, index-prev_index);
+        tmp = trim(tmp);
+        ret.push_back(tmp);
         prev_index = index;
     }
     return ret;
