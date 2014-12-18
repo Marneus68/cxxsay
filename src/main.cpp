@@ -185,7 +185,7 @@ int main(int argc, const char *argv[])
 {
     int opt;
 
-    while ((opt = getopt (argc, (char **)argv, "hlne:f:T:W:")) != -1)
+    while ((opt = getopt (argc, (char **)argv, "hlne:f:T:W:bdgpstwy")) != -1)
         switch (opt) {
             case 'h':
                 display_usage(argv[0], version);
@@ -213,6 +213,32 @@ int main(int argc, const char *argv[])
                 } catch (std::exception e) {
                     wrap = 1;
                 }
+                break;
+            case 'b':
+                eyes = "==";
+                break;
+            case 'd':
+                eyes = "xx";
+                tongue = "U";
+                break;
+            case 'g':
+                eyes = "$$";
+                break;
+            case 'p':
+                eyes = "@@";
+                break;
+            case 's':
+                eyes = "**";
+                tongue = "U";
+                break;
+            case 't':
+                eyes = "--";
+                break;
+            case 'w':
+                eyes = "OO";
+                break;
+            case 'y':
+                eyes = "..";
                 break;
             default:
                 break;

@@ -1,6 +1,9 @@
 # Executables
 cxxsay
 
+# Editor swap files
+*.swp
+
 # Compiled Object files
 *.slo
 *.lo
