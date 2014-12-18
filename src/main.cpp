@@ -30,7 +30,8 @@ unsigned int wrap = 40;
 std::string eyes = "oo";
 std::string tongue = "  ";
 //std::string cowpath = "/usr/share/cow";
-std::string cowpath = "/opt/local/share/cowsay/cows";
+std::string cowpath = "/usr/share/cowsay/cows";
+//std::string cowpath = "/opt/local/share/cowsay/cows";
 std::string cowfile = "default";
 std::string message = "";
 
@@ -131,6 +132,11 @@ void display_usage(const std::string & exname) {
             std::endl;
 }
 
+void list_cows() {
+    std::cout << "Cow files in " << cowpath << ":" << std::endl;
+    // TODO: list all files files in the cowpath
+}
+
 void display_cow_list(std::string e_cowpath) {
 }
 
@@ -190,6 +196,8 @@ void display_cow(const std::string & exname) {
     std::cout << std::endl;
 
     rep_map replace_list = {
+            {"\\\\", "\\"},
+            {"\\@", "@"},
             {"$thoughts", "\\"},
             {"$eyes", eyes},
             {"$tongue", tongue} };
@@ -216,8 +224,7 @@ int main(int argc, const char *argv[])
                 display_usage(argv[0]);
                 return EXIT_SUCCESS;
             case 'l':
-                std::cout << "Cow files in " << 
-                        cowpath << ":" << std::endl;
+                std::cout << "Cow files in " << cowpath << ":" << std::endl;
                 return EXIT_SUCCESS;
             case 'e':
                 eyes.clear();
