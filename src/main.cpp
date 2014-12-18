@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iterator>
 #include <string>
 #include <exception>
@@ -27,8 +28,9 @@ unsigned int message_word_count = 0;
 unsigned int wrap = 40;
 std::string eyes = "oo";
 std::string tongue = "  ";
-std::string cowpath = "/usr/share/cow";
-std::string cowfile = "default.cow";
+//std::string cowpath = "/usr/share/cow";
+std::string cowpath = "/opt/local/share/cowsay/cows";
+std::string cowfile = "default";
 std::string message = "";
 
 /* functions */
@@ -119,8 +121,8 @@ std::vector<std::string> break_down_message() {
     return ret;
 }
 
-void display_usage(std::string exname, std::string e_version) {
-    std::cout << "cxx{say,think} version " << e_version << 
+void display_usage(const std::string & exname) {
+    std::cout << "cxx{say,think} version " << version << 
             ", (c) 2014 Duane Bekaert" << std::endl << "Usage: " << 
             exname << " [-bdgpstwy] [-h] [-e eyes] [-f cowfile] " << 
             std::endl << 
@@ -131,9 +133,15 @@ void display_usage(std::string exname, std::string e_version) {
 void display_cow_list(std::string e_cowpath) {
 }
 
-void display_cow() {
-    std::cout << " ";
+void display_cow(const std::string & exname) {
+    std::ifstream ifs(cowpath + "/" + cowfile + ".cow");
+    if (!ifs) {
+        std::cout << exname << ": Could not find " << cowfile << 
+                " cowfile!" << std::endl;
+        return;
+    }
 
+    std::cout << " ";
     if (message.size() < wrap) {
         for(int i = 0; i < message.size() + 2; i++)
             std::cout << "-";
@@ -178,6 +186,23 @@ void display_cow() {
         }
     }
     std::cout << std::endl;
+
+
+    rep_map replace_list = {
+            {"$thoughts", "\\"},
+            {"$eyes", eyes},
+            {"$tongue", tongue} };
+
+    std::string out_str;
+    while (!ifs.eof()) {
+        std::getline(ifs, out_str);
+        if (out_str.substr(0,2).compare("##") == 0)
+            continue;
+        if (out_str.find("EOC") == std::string::npos) {
+            out_str = multi_replace(out_str, replace_list);
+            std::cout << out_str << std::endl;
+        }
+    }
 }
 
 /* main */
@@ -188,7 +213,7 @@ int main(int argc, const char *argv[])
     while ((opt = getopt (argc, (char **)argv, "hlne:f:T:W:bdgpstwy")) != -1)
         switch (opt) {
             case 'h':
-                display_usage(argv[0], version);
+                display_usage(argv[0]);
                 return EXIT_SUCCESS;
             case 'l':
                 std::cout << "Cow files in " << 
@@ -250,6 +275,7 @@ int main(int argc, const char *argv[])
 
         if (message_word_count==0)
             get_interactive_message(); 
-        display_cow();
+        display_cow(argv[0]);
     return EXIT_SUCCESS;
 }
+
