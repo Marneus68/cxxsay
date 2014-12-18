@@ -7,6 +7,7 @@
 #include <functional>
 #include <algorithm> 
 #include <cctype>
+#include <cstdlib>
 #include <locale>
 #include <vector>
 #include <map>
@@ -135,9 +136,10 @@ void display_cow_list(std::string e_cowpath) {
 
 void display_cow(const std::string & exname) {
     std::ifstream ifs(cowpath + "/" + cowfile + ".cow");
-    if (!ifs) {
+    if (!ifs.good()) {
         std::cout << exname << ": Could not find " << cowfile << 
                 " cowfile!" << std::endl;
+        ifs.close();
         return;
     }
 
@@ -187,7 +189,6 @@ void display_cow(const std::string & exname) {
     }
     std::cout << std::endl;
 
-
     rep_map replace_list = {
             {"$thoughts", "\\"},
             {"$eyes", eyes},
@@ -209,7 +210,6 @@ void display_cow(const std::string & exname) {
 int main(int argc, const char *argv[])
 {
     int opt;
-
     while ((opt = getopt (argc, (char **)argv, "hlne:f:T:W:bdgpstwy")) != -1)
         switch (opt) {
             case 'h':
@@ -244,7 +244,7 @@ int main(int argc, const char *argv[])
                 break;
             case 'd':
                 eyes = "xx";
-                tongue = "U";
+                tongue = "U ";
                 break;
             case 'g':
                 eyes = "$$";
@@ -254,7 +254,7 @@ int main(int argc, const char *argv[])
                 break;
             case 's':
                 eyes = "**";
-                tongue = "U";
+                tongue = "U ";
                 break;
             case 't':
                 eyes = "--";
