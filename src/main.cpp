@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <locale>
 #include <vector>
+#include <bitset>
 #include <map>
 
 extern "C" {
@@ -29,9 +30,7 @@ unsigned int message_word_count = 0;
 unsigned int wrap = 40;
 std::string eyes = "oo";
 std::string tongue = "  ";
-//std::string cowpath = "/usr/share/cow";
-std::string cowpath = "/usr/share/cowsay/cows";
-//std::string cowpath = "/opt/local/share/cowsay/cows";
+std::string cowpath = "/usr/share/cow";
 std::string cowfile = "default";
 std::string message = "";
 
@@ -47,6 +46,53 @@ std::string multi_replace(std::string & str, rep_map e_rep_map) {
         }
     }
     return str;
+}
+
+size_t utf8_size(const std::string & str) {
+    size_t counter = 0;
+    unsigned int utf_counter = 0;
+    //for (auto c : str) {
+    for (int i = 0; i < str.size(); i++) {
+        auto c = str[i];
+        auto mask = 0xC0;
+        if ((c & 0xC0) == 0xC0)
+            utf_counter = 1;
+        else if ((c & 0xE0) == 0xE0)
+            utf_counter = 2;
+        else if ((c & 0xF0) == 0xF0)
+            utf_counter = 3;
+        else if ((c & 0xF8) == 0xF8)
+            utf_counter = 4;
+        else if ((c & 0xFC) == 0xFC) 
+            utf_counter = 5;
+        else if ((c & 0x80) == 0x80) {
+            utf_counter--;
+            if (utf_counter == 0)
+                counter++;
+        } else if (c == 0b00011011) {
+            if (str[i]+1 < str.size())
+                if (str[i]+1 == '[')
+                    while (str[i]+1 < str.size() && str[i]+1 != 'm') {
+                        i++;
+                    }
+                    
+            //std::string start = "[";
+            //std::cout << "possible colouring string detected" << std::endl;
+            /*
+            if (str.substr(i, start.size()) == start) {
+                std::cout << "colouring string detected" << std::endl;
+                i = i+start.size();
+                while (str[i]!='m') {
+                    i++;
+                }
+            }
+            */
+            //counter--;
+        } else {
+            counter++;
+        }
+    }
+    return counter;
 }
 
 /* simple and efficient trim funcions, from : http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring */
@@ -141,6 +187,13 @@ void display_cow_list(std::string e_cowpath) {
 }
 
 void display_cow(const std::string & exname) {
+    /*
+    for (auto c : message) {
+        std::bitset<8> bs(c);
+        std::cout << bs  << " : " << c << std::endl;
+    }
+    */
+
     std::ifstream ifs(cowpath + "/" + cowfile + ".cow");
     if (!ifs.good()) {
         std::cout << exname << ": Could not find " << cowfile << 
@@ -150,11 +203,11 @@ void display_cow(const std::string & exname) {
     }
 
     std::cout << " ";
-    if (message.size() < wrap) {
-        for(int i = 0; i < message.size() + 2; i++)
+    if (utf8_size(message) < wrap) {
+        for(int i = 0; i < utf8_size(message) + 2; i++)
             std::cout << "-";
         std::cout << std::endl << "< " << message << " >" << std::endl << " ";
-        for(int i = 0; i < message.size() + 2; i++)
+        for(int i = 0; i < utf8_size(message) + 2; i++)
             std::cout << "-";
     } else {
         unsigned int max_len = 0;
@@ -278,6 +331,11 @@ int main(int argc, const char *argv[])
 
         for (int index = optind; index < argc; index++) {
             add_word_to_message( argv[index]);
+        }
+
+        auto cp = getenv("COWPATH");
+        if (cp) {
+            cowpath = cp;
         }
 
         if (message_word_count==0)
