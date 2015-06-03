@@ -1,21 +1,24 @@
-#include <iostream>
-#include <fstream>
-#include <iterator>
-#include <string>
+#include <functional>
 #include <exception>
 #include <stdexcept>
-#include <functional>
 #include <algorithm> 
-#include <cctype>
+#include <iterator>
+#include <iostream>
 #include <cstdlib>
+#include <fstream>
+#include <string>
+#include <cctype>
 #include <locale>
 #include <vector>
 #include <bitset>
 #include <map>
 
 extern "C" {
-    #include <unistd.h>
-    #include <getopt.h>
+#include <fnmatch.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <libgen.h>
+#include <ftw.h>
 }
 
 typedef std::map<std::string, std::string> rep_map;
@@ -30,9 +33,16 @@ unsigned int message_word_count = 0;
 unsigned int wrap = 40;
 std::string eyes = "oo";
 std::string tongue = "  ";
+#ifdef __APPLE__
+std::string cowpath = "/opt/local/share/cowsay/cows";
+//#else defined __SOMETHING__
+#else
 std::string cowpath = "/usr/share/cow";
+#endif
 std::string cowfile = "default";
 std::string message = "";
+
+std::vector<std::string> cowlist = {};
 
 /* functions */
 std::string multi_replace(std::string & str, rep_map e_rep_map) {
@@ -51,65 +61,48 @@ std::string multi_replace(std::string & str, rep_map e_rep_map) {
 size_t utf8_size(const std::string & str) {
     size_t counter = 0;
     unsigned int utf_counter = 0;
-    //for (auto c : str) {
     for (int i = 0; i < str.size(); i++) {
         auto c = str[i];
         auto mask = 0xC0;
-        if ((c & 0xC0) == 0xC0)
+        if ((c & 0xC0) == 0xC0) {
             utf_counter = 1;
-        else if ((c & 0xE0) == 0xE0)
+        } else if ((c & 0xE0) == 0xE0) {
             utf_counter = 2;
-        else if ((c & 0xF0) == 0xF0)
+        } else if ((c & 0xF0) == 0xF0) {
             utf_counter = 3;
-        else if ((c & 0xF8) == 0xF8)
+        } else if ((c & 0xF8) == 0xF8) {
             utf_counter = 4;
-        else if ((c & 0xFC) == 0xFC) 
+        } else if ((c & 0xFC) == 0xFC) {
             utf_counter = 5;
-        else if ((c & 0x80) == 0x80) {
+        } else if ((c & 0x80) == 0x80) {
             utf_counter--;
             if (utf_counter == 0)
                 counter++;
-        } else if (c == 0b00011011) {
-            if (str[i]+1 < str.size())
-                if (str[i]+1 == '[')
-                    while (str[i]+1 < str.size() && str[i]+1 != 'm') {
-                        i++;
-                    }
-                    
-            //std::string start = "[";
-            //std::cout << "possible colouring string detected" << std::endl;
-            /*
-            if (str.substr(i, start.size()) == start) {
-                std::cout << "colouring string detected" << std::endl;
-                i = i+start.size();
-                while (str[i]!='m') {
-                    i++;
-                }
+        } else if (c == 0x1B) {
+            while (str[i] != 'm') {
+                if (str[i]+1 < str.size()) break;
+                i++;
             }
-            */
-            //counter--;
-        } else {
-            counter++;
-        }
+        } else counter++;
     }
     return counter;
 }
 
 /* simple and efficient trim funcions, from : http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring */
 static inline std::string &ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(),
+    s.erase(s.begin(), std::find_if(s.begin(),
                 s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
+    return s;
 }
 
 static inline std::string &rtrim(std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), 
-                std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
+    s.erase(std::find_if(s.rbegin(), s.rend(), 
+            std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    return s;
 }
 
 static inline std::string &trim(std::string &s) {
-        return ltrim(rtrim(s));
+    return ltrim(rtrim(s));
 }
 
 void add_word_to_message(const std::string & word) {
@@ -178,12 +171,31 @@ void display_usage(const std::string & exname) {
             std::endl;
 }
 
-void list_cows() {
-    std::cout << "Cow files in " << cowpath << ":" << std::endl;
-    // TODO: list all files files in the cowpath
+int ftw_callback(const char *fpath, const struct stat *sb, int typeflag) {
+    if (FTW_F == typeflag) {
+        std::string sfpath = basename((char*)fpath);
+        if (sfpath[0] != '.') {
+            sfpath = sfpath.replace(sfpath.length() - 4, 4, "");
+            cowlist.push_back(sfpath);
+        }
+    }
+    return 0;
 }
 
-void display_cow_list(std::string e_cowpath) {
+void display_cow_list() {
+    std::cout << "Cow files in " << cowpath << ":" << std::endl;
+    ftw(cowpath.c_str(), ftw_callback, 1);
+    std::sort(cowlist.begin(), cowlist.end(), std::less<std::string>());
+    int ccounter = 0;
+    for(auto s : cowlist) {
+        if (ccounter + s.length() > 80) {
+            std::cout << std::endl;
+            ccounter = 0;
+        }
+        std::cout << s << " ";
+        ccounter += s.length()+1;
+    }
+    std::cout << std::endl;
 }
 
 void display_cow(const std::string & exname) {
@@ -205,7 +217,7 @@ void display_cow(const std::string & exname) {
     std::cout << " ";
     if (utf8_size(message) < wrap) {
         for(int i = 0; i < utf8_size(message) + 2; i++)
-            std::cout << "-";
+            std::cout << "_";
         std::cout << std::endl << "< " << message << " >" << std::endl << " ";
         for(int i = 0; i < utf8_size(message) + 2; i++)
             std::cout << "-";
@@ -271,13 +283,20 @@ void display_cow(const std::string & exname) {
 int main(int argc, const char *argv[])
 {
     int opt;
+
+    auto cp = getenv("COWPATH");
+    if (cp) {
+        cowpath = cp;
+    }
+
+
     while ((opt = getopt (argc, (char **)argv, "hlne:f:T:W:bdgpstwy")) != -1)
         switch (opt) {
             case 'h':
                 display_usage(argv[0]);
                 return EXIT_SUCCESS;
             case 'l':
-                std::cout << "Cow files in " << cowpath << ":" << std::endl;
+                display_cow_list();
                 return EXIT_SUCCESS;
             case 'e':
                 eyes.clear();
@@ -329,15 +348,8 @@ int main(int argc, const char *argv[])
                 break;
         }
 
-        for (int index = optind; index < argc; index++) {
+        for (int index = optind; index < argc; index++)
             add_word_to_message( argv[index]);
-        }
-
-        auto cp = getenv("COWPATH");
-        if (cp) {
-            cowpath = cp;
-        }
-
         if (message_word_count==0)
             get_interactive_message(); 
         display_cow(argv[0]);
