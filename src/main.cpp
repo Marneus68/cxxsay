@@ -199,13 +199,6 @@ void display_cow_list() {
 }
 
 void display_cow(const std::string & exname) {
-    /*
-    for (auto c : message) {
-        std::bitset<8> bs(c);
-        std::cout << bs  << " : " << c << std::endl;
-    }
-    */
-
     std::ifstream ifs(cowpath + "/" + cowfile + ".cow");
     if (!ifs.good()) {
         std::cout << exname << ": Could not find " << cowfile << 
@@ -230,7 +223,7 @@ void display_cow(const std::string & exname) {
         
         if (v.size() == 2) {
             for(int i = 0; i < max_len + 2; i++)
-                std::cout << "-";
+                std::cout << "_";
             std::cout << std::endl << "/ " << v[0] << std::endl;
             std::cout << "\\ " << v[1] << std::endl;
             std::cout << " ";
@@ -238,7 +231,7 @@ void display_cow(const std::string & exname) {
                 std::cout << "-";
         } else {
             for(int i = 0; i < max_len + 2; i++)
-                std::cout << "-";
+                std::cout << "_";
             std::cout << std::endl;
             for(int index = 0; index < v.size(); index++) {
                 if (index == 0) std::cout << "/ ";
@@ -283,12 +276,8 @@ void display_cow(const std::string & exname) {
 int main(int argc, const char *argv[])
 {
     int opt;
-
     auto cp = getenv("COWPATH");
-    if (cp) {
-        cowpath = cp;
-    }
-
+    if (cp) cowpath = cp;
 
     while ((opt = getopt (argc, (char **)argv, "hlne:f:T:W:bdgpstwy")) != -1)
         switch (opt) {
