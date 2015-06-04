@@ -211,11 +211,11 @@ void display_cow(const std::string & exname, RunType type) {
 
     std::string thought, left_bubble, right_bubble;
     if (type == RunType::THINK) {
-        thought = "\\";
+        thought = "o";
         left_bubble = "( ";
         right_bubble = " )";
     } else {
-        thought = "o";
+        thought = "\\";
         left_bubble = "< ";
         right_bubble = " >";
     }
