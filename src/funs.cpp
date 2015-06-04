@@ -1,3 +1,5 @@
+#include "funs.h"
+
 #include <functional>
 #include <exception>
 #include <stdexcept>
@@ -6,7 +8,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
-#include <string>
 #include <cctype>
 #include <locale>
 #include <vector>
@@ -21,25 +22,26 @@ extern "C" {
 #include <ftw.h>
 }
 
+#define VERSION "0.1"
+#define AUTHOR  "Duane Bekaert"
+
+#ifdef __APPLE__
+#define COWPATH "/opt/local/share/cowsay/cows"
+//#else defined __SOMETHING__
+#else
+#define COWPATH "/user/share/cow"
+#endif
+#define COWFILE "default"
+
 typedef std::map<std::string, std::string> rep_map;
 typedef rep_map::iterator it_rep_map;
 
-/* constants */
-const std::string version = "0.1";
-
-/* variables */
 unsigned int message_word_count = 0;
-
 unsigned int wrap = 40;
 std::string eyes = "oo";
 std::string tongue = "  ";
-#ifdef __APPLE__
-std::string cowpath = "/opt/local/share/cowsay/cows";
-//#else defined __SOMETHING__
-#else
-std::string cowpath = "/usr/share/cow";
-#endif
-std::string cowfile = "default";
+std::string cowpath = COWPATH;
+std::string cowfile = COWFILE;
 std::string message = "";
 
 std::vector<std::string> cowlist = {};
@@ -163,7 +165,7 @@ std::vector<std::string> break_down_message() {
 }
 
 void display_usage(const std::string & exname) {
-    std::cout << "cxx{say,think} version " << version << 
+    std::cout << "cxx{say,think} version " << VERSION << 
             ", (c) 2014 Duane Bekaert" << std::endl << "Usage: " << 
             exname << " [-bdgpstwy] [-h] [-e eyes] [-f cowfile] " << 
             std::endl << 
@@ -198,7 +200,7 @@ void display_cow_list() {
     std::cout << std::endl;
 }
 
-void display_cow(const std::string & exname) {
+void display_cow(const std::string & exname, RunType type) {
     std::ifstream ifs(cowpath + "/" + cowfile + ".cow");
     if (!ifs.good()) {
         std::cout << exname << ": Could not find " << cowfile << 
@@ -207,11 +209,22 @@ void display_cow(const std::string & exname) {
         return;
     }
 
+    std::string thought, left_bubble, right_bubble;
+    if (type == RunType::THINK) {
+        thought = "\\";
+        left_bubble = "( ";
+        right_bubble = " )";
+    } else {
+        thought = "o";
+        left_bubble = "< ";
+        right_bubble = " >";
+    }
+
     std::cout << " ";
     if (utf8_size(message) < wrap) {
         for(int i = 0; i < utf8_size(message) + 2; i++)
             std::cout << "_";
-        std::cout << std::endl << "< " << message << " >" << std::endl << " ";
+        std::cout << std::endl << left_bubble << message << right_bubble << std::endl << " ";
         for(int i = 0; i < utf8_size(message) + 2; i++)
             std::cout << "-";
     } else {
@@ -256,7 +269,7 @@ void display_cow(const std::string & exname) {
     rep_map replace_list = {
             {"\\\\", "\\"},
             {"\\@", "@"},
-            {"$thoughts", "\\"},
+            {"$thoughts", thought},
             {"$eyes", eyes},
             {"$tongue", tongue} };
 
@@ -273,8 +286,7 @@ void display_cow(const std::string & exname) {
 }
 
 /* main */
-int main(int argc, const char *argv[])
-{
+int cowsay(int argc, const char *argv[], RunType type) {
     int opt;
     auto cp = getenv("COWPATH");
     if (cp) cowpath = cp;
@@ -341,7 +353,7 @@ int main(int argc, const char *argv[])
             add_word_to_message( argv[index]);
         if (message_word_count==0)
             get_interactive_message(); 
-        display_cow(argv[0]);
+        display_cow(argv[0], type);
     return EXIT_SUCCESS;
 }
 

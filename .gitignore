@@ -1,5 +1,6 @@
 # Executables
 cxxsay
+cxxthink
 
 # Editor swap files
 *.swp

@@ -26,30 +26,49 @@ VPATH	:= $(INCDIR) $(SRCDIR) $(OBJDIR)
 CPP_SRCS    = $(wildcard src/*.cpp)
 OBJ_FILES   = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(CPP_SRCS))
 
-all: objdir ${TARGET}
+# Colors
+black	= `tput setaf 0`
+red		= `tput setaf 1`
+green	= `tput setaf 2`
+yellow	= `tput setaf 3`
+blue	= `tput setaf 4`
+magenta = `tput setaf 5`
+cyan	= `tput setaf 2`
+white	= `tput setaf 7`
+reset	= `tput sgr0`
 
-$(TARGET): $(OBJ_FILES)
-	@echo "Linking..."
-	$(CC) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $(OBJ_FILES) -o $@ $(LDLIBS) 
-	@echo "Done."
+all: cxxsay cxxthink
+
+cxxsay: obj/funs.o obj/cxxsay.o
+	@echo "$(blue)Linking $(yellow)"$@"$(blue)...$(reset)"
+	$(CC) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
+	@echo "$(green)Done.$(reset)"
+
+cxxthink: obj/funs.o obj/cxxthink.o
+	@echo "$(blue)Linking $(yellow)"$@"$(blue)...$(reset)"
+	$(CC) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
+	@echo "$(green)Done.$(reset)"
 
 obj/%.o: %.cpp
-	@echo "Compiling "$<"..."
+	@echo "$(blue)Compiling $(yellow)"$<"$(blue)...$(reset)"
 	$(CC) -c $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@
 
 objdir:
-	@echo "Creating object directory..."
+	@echo "$(blue)Creating object directory..."$(reset)
 	mkdir -p $(OBJDIR)
 
 clean: 
-	@echo "Cleaning..."
+	@echo "$(blue)Cleaning executables...$(reset)"
 	rm -rf $(OBJDIR)/*.o
 
 mrproper: clean
-	rm -rf ${TARGET}
+	@echo "$(blue)Cleaning executables...$(reset)"
+	rm -rf cxxsay
+	rm -rf cxxthink
 
 install:
-	@echo "Installing..."
+	@echo "$(blue)Installing...$(reset)"
 
 doc:
 	@echo "Building documentation..."
+
