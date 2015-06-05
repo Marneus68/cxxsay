@@ -82,12 +82,27 @@ size_t utf8_size(const std::string & str) {
                 counter++;
         } else if (c == 0x1B) {
             while (str[i] != 'm') {
-                if (str[i]+1 < str.size()) break;
+                //if (str[i]+1 > str.size()) break;
                 i++;
             }
         } else counter++;
     }
     return counter;
+}
+
+std::string latest_escape_sequence(const std::string & str) {
+    std::string ret = "";
+    for (int i = 0; i < str.size(); i++) {
+        auto c = str[i];
+        if (c == 0x1B) {
+            while (str[i] != 'm') {
+                ret += str[i];
+                i++;
+            }
+            ret += 'm';
+        }
+    }
+    return ret;
 }
 
 /* simple and efficient trim funcions, from : http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring */
@@ -131,12 +146,6 @@ void get_interactive_message() {
     message = trim(results);
 }
 
-void print_padding(const std::string & line) {
-    for(int i = line.size(); i < wrap-1; i++) {
-        std::cout << " ";
-    }
-}
-
 std::vector<std::string> break_down_message() {
     std::string str = message;
     std::vector<std::string> ret;
@@ -145,9 +154,9 @@ std::vector<std::string> break_down_message() {
                     prev_index = 0,
                     index = 0; 
 
-    while (index < message.size()) {
+    while (index < utf8_size(message)) {
         index += wrap;
-        if (index > message.size()) {
+        if (index > utf8_size(message)) {
             std::string tmp = str.substr(prev_index);
             tmp = trim(tmp);
             ret.push_back(tmp);
@@ -231,29 +240,40 @@ void display_cow(const std::string & exname, RunType type) {
         unsigned int max_len = 0;
         auto v = break_down_message();
         for(auto l : v)
-            if (l.size() > max_len)
-                max_len = l.size();
+            if (utf8_size(l) > max_len)
+                max_len = utf8_size(l);
         
-        if (v.size() == 2) {
+        std::string les = latest_escape_sequence(v[0]); // Last escape sequence
+        if (v.size() >= 2) {
             for(int i = 0; i < max_len + 2; i++)
                 std::cout << "_";
-            std::cout << std::endl << "/ " << v[0] << std::endl;
-            std::cout << "\\ " << v[1] << std::endl;
-            std::cout << " ";
-            for(int i = 0; i < max_len + 2; i++)
-                std::cout << "-";
-        } else {
-            for(int i = 0; i < max_len + 2; i++)
-                std::cout << "_";
+            int eflag = latest_escape_sequence(v[0]).compare("");
+            std::string les;
             std::cout << std::endl;
             for(int index = 0; index < v.size(); index++) {
                 if (index == 0) std::cout << "/ ";
                 else if (index == v.size()-1) std::cout << "\\ ";
                 else std::cout << "| ";
+
+                if (index !=0) {
+                    std::string tmples = latest_escape_sequence(v[index-1]);
+                    if (tmples.compare("")!=0)
+                        les = tmples;
+
+                    if (les.compare("")!=0) {
+                        eflag++;
+                        std::cout << les;
+                    }
+                }
                 
                 std::cout << v[index];
-                
-                print_padding(v[index]);
+                int r = max_len-utf8_size(v[index]);
+                while(r) {
+                    std::cout << " ";
+                    r--;
+                }
+
+                if (eflag) printf("%c[%s", 0x1B, "00m");
                 if (index == 0) std::cout << " \\";
                 else if (index == v.size()-1) std::cout << " /";
                 else std::cout << " |";
@@ -276,13 +296,14 @@ void display_cow(const std::string & exname, RunType type) {
     std::string out_str;
     while (!ifs.eof()) {
         std::getline(ifs, out_str);
-        if (out_str.substr(0,2).compare("##") == 0)
-            continue;
+        if (out_str.substr(0,2).compare("##") == 0) continue;
+
         if (out_str.find("EOC") == std::string::npos) {
             out_str = multi_replace(out_str, replace_list);
             std::cout << out_str << std::endl;
         }
     }
+    std::cout << "\e[A";
 }
 
 /* main */
