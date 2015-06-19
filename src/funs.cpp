@@ -65,18 +65,17 @@ size_t utf8_size(const std::string & str) {
     unsigned int utf_counter = 0;
     for (int i = 0; i < str.size(); i++) {
         auto c = str[i];
-        auto mask = 0xC0;
-        if ((c & 0xC0) == 0xC0) {
-            utf_counter = 1;
-        } else if ((c & 0xE0) == 0xE0) {
-            utf_counter = 2;
-        } else if ((c & 0xF0) == 0xF0) {
-            utf_counter = 3;
-        } else if ((c & 0xF8) == 0xF8) {
-            utf_counter = 4;
-        } else if ((c & 0xFC) == 0xFC) {
-            utf_counter = 5;
-        } else if ((c & 0x80) == 0x80) {
+        auto mask = 0x80;
+
+        for (int j = 0; j < 5; i++) {
+            mask = (mask >> 1) | mask;
+            if ((c & mask) == mask) {
+                utf_counter = j;
+                break;
+            }
+        }
+
+        if ((c & 0x80) == 0x80) {
             utf_counter--;
             if (utf_counter == 0)
                 counter++;
