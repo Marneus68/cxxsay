@@ -49,11 +49,11 @@ cxxthink: obj/funs.o obj/cxxthink.o
 	$(CC) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
 	@echo "$(green)Done.$(reset)"
 
-obj/%.o: %.cpp
+obj/%.o: %.cpp $(OBJDIR)
 	@echo "$(blue)Compiling $(yellow)"$<"$(blue)...$(reset)"
 	$(CC) -c $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@
 
-objdir:
+$(OBJDIR):
 	@echo "$(blue)Creating object directory..."$(reset)
 	mkdir -p $(OBJDIR)
 
