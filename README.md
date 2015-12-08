@@ -26,4 +26,4 @@ Run the following command as root:
 License
 -------
 
-Cowsay is under the WTFPL. See LICENSE for more details.
+Cowsay is under the WTFPL. See [LICENSE](https://raw.githubusercontent.com/Marneus68/cxxsay/master/LICENSE) for more details.
