@@ -1,7 +1,5 @@
 # Takes the name of the current directory as a the executable and "pr" name
 TARGET  := $(shell basename $$PWD | tr '[:upper:]' '[:lower:]')
-# Compiler
-CC      := g++
 # Warning levels
 WARN    :=
 # Optimisation
@@ -41,17 +39,17 @@ all: cxxsay cxxthink
 
 cxxsay: obj/funs.o obj/cxxsay.o
 	@echo "$(blue)Linking $(yellow)"$@"$(blue)...$(reset)"
-	$(CC) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
+	$(CXX) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
 	@echo "$(green)Done.$(reset)"
 
 cxxthink: obj/funs.o obj/cxxthink.o
 	@echo "$(blue)Linking $(yellow)"$@"$(blue)...$(reset)"
-	$(CC) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
+	$(CXX) $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDLIBS) 
 	@echo "$(green)Done.$(reset)"
 
 obj/%.o: %.cpp $(OBJDIR)
 	@echo "$(blue)Compiling $(yellow)"$<"$(blue)...$(reset)"
-	$(CC) -c $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@
+	$(CXX) -c $(WARN) $(OFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@
 
 $(OBJDIR):
 	@echo "$(blue)Creating object directory..."$(reset)
