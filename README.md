@@ -32,7 +32,7 @@ Run the following command as root:
 Usage
 -----
 
-`cxxsay` can be used pretty much like the original `cowsay`. All the behaviour of the original are reimplemented in this clone.
+`cxxsay` can be used pretty much like the original `cowsay`. All the behaviours of the original have been reimplemented in this clone. If is also able to work with the original `.cow` files.
 
 License
 -------
