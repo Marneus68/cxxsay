@@ -64,8 +64,20 @@ mrproper: clean
 	rm -rf cxxsay
 	rm -rf cxxthink
 
-install:
+install: cxxsay cxxthink
 	@echo "$(blue)Installing...$(reset)"
+	install cxxsay /usr/bin/cxxsay
+	install cxxthink /usr/bin/cxxthink
+	install -d cows /usr/share/cows
+	install cows/default.cow /usr/share/cows/default.cow
+	@echo "$(green)Done.$(reset)"
+
+uninstall:
+	@echo "$(blue)Uninstalling...$(reset)"
+	rm /usr/bin/cxxsay
+	rm /usr/bin/cxxthink
+	rm -rf /usr/share/cows
+	@echo "$(green)Done.$(reset)"
 
 doc:
 	@echo "Building documentation..."

@@ -22,6 +22,17 @@ Run the following command as root:
 
 	make install
 
+Uninstalling
+------------
+
+Run the following command as root:
+
+    make uninstall
+
+Usage
+-----
+
+`cxxsay` can be used pretty much like the original `cowsay`. All the behaviour of the original are reimplemented in this clone.
 
 License
 -------

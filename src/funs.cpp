@@ -29,7 +29,7 @@ extern "C" {
 #define COWPATH "/opt/local/share/cowsay/cows"
 //#else defined __SOMETHING__
 #else
-#define COWPATH "/user/share/cow"
+#define COWPATH "/usr/share/cows"
 #endif
 #define COWFILE "default"
 
