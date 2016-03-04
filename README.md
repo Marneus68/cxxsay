@@ -1,26 +1,57 @@
 cxxsay
 ======
 
-`cxxsay` is a cowsay clone designed to handle gracefully unicode characters (UTF-8) as well as the ANSI escape codes used to color text in terminal emulators.
+*cxxsay* is a [cowsay]() clone designed to handle gracefully UTF-8 as well as the ANSI escape codes used to color text in terminal emulators.
 
-Dependencies
-------------
-
-The only thing needed is a C++ compiler able to handle C++11. A sufficently recent version of g++ or clang should be good.
-
-Building
+Features
 --------
 
-Once the project clonned, you can run the following command to buil the project:
+Unlike the original *cowsay*, *cxxsay* is build to handle UTF-8 characters gracefully:
 
-	make
+![]()
 
-Installing 
+It also handles ANSI escape sequences properly:
+
+![]()
+
+Just like *cowsay*, *cxxsay* comes with a "think" alias.
+
+Usage
+-----
+
+Usage is the same as the original cowsay.
+
+The `-h` argument or any invalid command will trigger the usage message.
+
+    cxx{say,think} version 0.1, (c) 2014 Duane Bekaert
+    Usage: ./cxxsay [-bdgpstwy] [-h] [-e eyes] [-f cowfile] 
+          [-l] [-n] [-T tongue] [-W wrapcolumn] [message]
+
+
+Installing
 ----------
 
-Run the following command as root:
+### Binaries
 
-	make install
+#### Mac OS X
+
+`TODO`
+
+#### Linux
+
+`TODO`
+
+### From source
+
+The only thing needed to build *cxxsay* from source is a C++ compiler able to handle C++11. A sufficiently recent version of g++ or clang should be good enough.
+
+Clone the repository:
+
+    git clone https://github.com/Marneus68/cxxsay.git
+
+You can both build and install everything by running the following as root:
+
+    make install
 
 Uninstalling
 ------------
@@ -29,12 +60,7 @@ Run the following command as root:
 
     make uninstall
 
-Usage
------
-
-`cxxsay` can be used pretty much like the original `cowsay`. All the behaviour of the original are reimplemented in this clone.
-
 License
 -------
 
-Cowsay is under the WTFPL. See [LICENSE](https://raw.githubusercontent.com/Marneus68/cxxsay/master/LICENSE) for more details.
+*cxxsay* is under the WTFPL. See [LICENSE](https://raw.githubusercontent.com/Marneus68/cxxsay/master/LICENSE) for more details.
