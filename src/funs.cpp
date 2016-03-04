@@ -26,7 +26,7 @@ extern "C" {
 #define AUTHOR  "Duane Bekaert"
 
 #ifdef __APPLE__
-#define COWPATH "/opt/local/share/cowsay/cows"
+#define COWPATH "/usr/local/share/cows"
 //#else defined __SOMETHING__
 #else
 #define COWPATH "/usr/share/cows"

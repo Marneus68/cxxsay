@@ -35,6 +35,13 @@ cyan	= `tput setaf 2`
 white	= `tput setaf 7`
 reset	= `tput sgr0`
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+        INSTALL_DIR := /usr/local
+else
+        INSTALL_DIR := /usr
+endif
+
 all: cxxsay cxxthink
 
 cxxsay: obj/funs.o obj/cxxsay.o
@@ -66,17 +73,17 @@ mrproper: clean
 
 install: cxxsay cxxthink
 	@echo "$(blue)Installing...$(reset)"
-	install cxxsay /usr/bin/cxxsay
-	install cxxthink /usr/bin/cxxthink
-	install -d cows /usr/share/cows
-	install cows/default.cow /usr/share/cows/default.cow
+	install cxxsay $(INSTALL_DIR)/bin
+	install cxxthink $(INSTALL_DIR)/bin
+	install -d cows $(INSTALL_DIR)/share/cows
+	install cows/default.cow $(INSTALL_DIR)/share/cows/default.cow
 	@echo "$(green)Done.$(reset)"
 
 uninstall:
 	@echo "$(blue)Uninstalling...$(reset)"
-	rm /usr/bin/cxxsay
-	rm /usr/bin/cxxthink
-	rm -rf /usr/share/cows
+	rm $(INSTALL_DIR)/bin/cxxsay
+	rm $(INSTALL_DIR)/bin/cxxthink
+	rm -rf $(INSTALL_DIR)/share/cows
 	@echo "$(green)Done.$(reset)"
 
 doc:
